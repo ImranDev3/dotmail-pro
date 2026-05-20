@@ -1,14 +1,14 @@
 {
   "name": "otp-fetcher",
-  "version": "1.0.0",
-  "description": "Gmail OTP fetcher using Gmail API",
+  "version": "2.0.0",
+  "description": "Gmail OTP fetcher using IMAP (100% free)",
   "main": "server.js",
   "scripts": {
     "start": "node server.js"
   },
   "dependencies": {
     "express": "^4.21.0",
-    "googleapis": "^144.0.0",
-    "open": "^10.1.0"
+    "imapflow": "^1.0.0",
+    "mailparser": "^3.9.8"
   }
 }
