@@ -218,6 +218,12 @@
       font-size: 1rem;
       color: #a78bfa;
       word-break: break-all;
+      cursor: pointer;
+      transition: border 0.2s;
+    }
+
+    .main-email-box:hover {
+      border-color: #6366f1;
     }
 
     .main-email-box .label {
@@ -238,10 +244,11 @@
       border: 1px solid #222;
       transition: all 0.2s;
       gap: 0.5rem;
+      cursor: pointer;
     }
 
     .email-item:hover {
-      border-color: #333;
+      border-color: #6366f1;
     }
 
     .email-item.copied {
@@ -473,6 +480,9 @@
         if (currentEmail) {
           mainEmailText.textContent = currentEmail;
           mainEmailBox.style.display = 'block';
+          mainEmailBox.onclick = function() {
+            copySingle(currentEmail, variations, copied);
+          };
         }
 
         variations.forEach((email, idx) => {
@@ -500,6 +510,10 @@
 
           btn.addEventListener('click', function(e) {
             e.stopPropagation();
+            copySingle(email, variations, copied);
+          });
+
+          item.addEventListener('click', function() {
             copySingle(email, variations, copied);
           });
 
