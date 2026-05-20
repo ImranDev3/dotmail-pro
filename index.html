@@ -413,11 +413,11 @@
           const raw = localStorage.getItem(STORAGE_KEY);
           if (raw) return JSON.parse(raw);
         } catch (_) {}
-        return { variations: [], copied: {} };
+        return { mainEmail: '', variations: [], copied: {} };
       }
 
-      function saveState(variations, copied) {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify({ variations, copied }));
+      function saveState(variations, copied, mainEmail) {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify({ mainEmail: mainEmail || '', variations, copied }));
       }
 
       function showToast(msg) {
@@ -522,7 +522,7 @@
       function copySingle(email, variations, copied) {
         navigator.clipboard.writeText(email).then(() => {
           copied[email] = true;
-          saveState(variations, copied);
+          saveState(variations, copied, currentEmail);
           render(variations, copied);
           showToast('Copied: ' + email);
         }).catch(() => {
@@ -540,7 +540,7 @@
         try {
           document.execCommand('copy');
           copied[text] = true;
-          saveState(variations, copied);
+          saveState(variations, copied, currentEmail);
           render(variations, copied);
           showToast('Copied: ' + text);
         } catch (_) {
@@ -553,7 +553,7 @@
         const text = variations.join('\n');
         navigator.clipboard.writeText(text).then(() => {
           variations.forEach(email => { copied[email] = true; });
-          saveState(variations, copied);
+          saveState(variations, copied, currentEmail);
           render(variations, copied);
           showToast('Copied ' + variations.length + ' emails');
         }).catch(() => {
@@ -619,7 +619,7 @@
         currentVariations = merged;
         currentEmail = trimmed;
 
-        saveState(merged, copied);
+        saveState(merged, copied, currentEmail);
         render(merged, copied);
         showToast('Generated ' + variations.length + ' dot variations');
       }
@@ -671,6 +671,10 @@
         const state = loadState();
         const v = state.variations || [];
         const c = state.copied || {};
+        if (state.mainEmail) {
+          currentEmail = state.mainEmail;
+          emailInput.value = currentEmail;
+        }
         if (v.length > 0) {
           currentVariations = v;
           render(v, c);
