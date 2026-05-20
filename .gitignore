@@ -2,3 +2,4 @@
 server/credentials.json
 server/token.json
 server/node_modules/
+.env

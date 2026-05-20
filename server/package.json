@@ -4,11 +4,17 @@
   "description": "Gmail OTP fetcher using IMAP (100% free)",
   "main": "server.js",
   "scripts": {
-    "start": "node server.js"
+    "start": "node server.js",
+    "dev": "nodemon server.js"
   },
   "dependencies": {
+    "dotenv": "^17.4.2",
     "express": "^4.21.0",
+    "googleapis": "^171.4.0",
     "imapflow": "^1.0.0",
     "mailparser": "^3.9.8"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.14"
   }
 }

@@ -384,14 +384,95 @@
 <body>
   <div class="container">
     <div class="header">
-      <h1>✦ Dot Email Generator</h1>
-      <p>Generate dot variations of any Gmail / Outlook email</p>
-      <a class="sub-link" href="http://localhost:3000" target="_blank">📧 OTP Fetcher</a>
+      <h1>✦ DotMail Pro</h1>
+      <p>Auto OTP fetch + Email generator</p>
+    </div>
+
+    <div class="card" id="loginCard">
+      <div style="display:flex;gap:0.75rem;flex-wrap:wrap;align-items:end;">
+        <div style="flex:1;min-width:200px;">
+          <label style="display:block;font-size:0.8rem;color:#888;margin-bottom:0.3rem;">Gmail</label>
+          <input type="email" id="otpEmailInput" placeholder="youraccount@gmail.com" style="width:100%;padding:0.6rem 1rem;border-radius:10px;border:1px solid #333;background:#12121a;color:#e0e0e0;font-size:0.9rem;outline:none;">
+        </div>
+        <div style="flex:1;min-width:200px;">
+          <label style="display:block;font-size:0.8rem;color:#888;margin-bottom:0.3rem;">App Password</label>
+          <input type="password" id="otpPassInput" placeholder="16-char password" style="width:100%;padding:0.6rem 1rem;border-radius:10px;border:1px solid #333;background:#12121a;color:#e0e0e0;font-size:0.9rem;outline:none;">
+        </div>
+        <button class="btn btn-generate" id="otpConnectBtn" style="padding:0.6rem 1.2rem;white-space:nowrap;">🔌 Connect</button>
+        <button class="btn btn-refresh" id="otpDisconnectBtn" style="padding:0.6rem 1.2rem;display:none;">🚪 Disconnect</button>
+      </div>
+      <div id="otpPollStatus" style="font-size:0.8rem;color:#666;margin-top:0.5rem;"></div>
+    </div>
+
+    <div class="card" id="otpResultCard" style="display:none;">
+      <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:0.5rem;">
+        <span style="font-size:0.85rem;color:#aaa;">📬 OTP Codes</span>
+        <button class="btn btn-refresh" id="clearOtpListBtn" style="font-size:0.8rem;padding:0.2rem 0.6rem;">Clear</button>
+      </div>
+      <div id="otpEmailList" style="display:flex;flex-wrap:wrap;gap:0.6rem;margin-top:0.5rem;"></div>
+    </div>
+
+    <div class="card">
+      <div style="display:flex;gap:0.75rem;flex-wrap:wrap;align-items:end;">
+        <div style="flex:1;min-width:150px;">
+          <label style="display:block;font-size:0.8rem;color:#888;margin-bottom:0.3rem;">Country Code</label>
+          <select id="countryCodeSelect" style="width:100%;padding:0.6rem 0.8rem;border-radius:10px;border:1px solid #333;background:#12121a;color:#e0e0e0;font-size:0.9rem;outline:none;">
+            <option value="+1">🇺🇸 US +1</option>
+            <option value="+44">🇬🇧 UK +44</option>
+            <option value="+880" selected>🇧🇩 BD +880</option>
+            <option value="+91">🇮🇳 IN +91</option>
+            <option value="+86">🇨🇳 CN +86</option>
+            <option value="+81">🇯🇵 JP +81</option>
+            <option value="+82">🇰🇷 KR +82</option>
+            <option value="+92">🇵🇰 PK +92</option>
+            <option value="+966">🇸🇦 SA +966</option>
+            <option value="+971">🇦🇪 AE +971</option>
+            <option value="+55">🇧🇷 BR +55</option>
+            <option value="+49">🇩🇪 DE +49</option>
+            <option value="+33">🇫🇷 FR +33</option>
+            <option value="+61">🇦🇺 AU +61</option>
+            <option value="+7">🇷🇺 RU +7</option>
+            <option value="+90">🇹🇷 TR +90</option>
+            <option value="+60">🇲🇾 MY +60</option>
+            <option value="+65">🇸🇬 SG +65</option>
+            <option value="+63">🇵🇭 PH +63</option>
+            <option value="+62">🇮🇩 ID +62</option>
+            <option value="+20">🇪🇬 EG +20</option>
+            <option value="+234">🇳🇬 NG +234</option>
+            <option value="+254">🇰🇪 KE +254</option>
+            <option value="+27">🇿🇦 ZA +27</option>
+            <option value="+31">🇳🇱 NL +31</option>
+            <option value="+39">🇮🇹 IT +39</option>
+            <option value="+34">🇪🇸 ES +34</option>
+            <option value="+41">🇨🇭 CH +41</option>
+            <option value="+46">🇸🇪 SE +46</option>
+            <option value="+47">🇳🇴 NO +47</option>
+            <option value="+45">🇩🇰 DK +45</option>
+            <option value="+358">🇫🇮 FI +358</option>
+            <option value="+48">🇵🇱 PL +48</option>
+            <option value="+351">🇵🇹 PT +351</option>
+            <option value="+30">🇬🇷 GR +30</option>
+            <option value="+852">🇭🇰 HK +852</option>
+            <option value="+886">🇹🇼 TW +886</option>
+            <option value="+43">🇦🇹 AT +43</option>
+            <option value="+32">🇧🇪 BE +32</option>
+            <option value="+353">🇮🇪 IE +353</option>
+          </select>
+        </div>
+        <div style="flex:1;min-width:150px;">
+          <label style="display:block;font-size:0.8rem;color:#888;margin-bottom:0.3rem;">Count</label>
+          <input type="number" id="phoneCountInput" value="20" min="1" max="200" style="width:100%;padding:0.6rem 0.8rem;border-radius:10px;border:1px solid #333;background:#12121a;color:#e0e0e0;font-size:0.9rem;outline:none;">
+        </div>
+        <button class="btn btn-generate" id="phoneGenBtn" style="padding:0.6rem 1.2rem;">📱 Generate</button>
+        <button class="btn btn-refresh" id="uploadBtn" style="padding:0.6rem 1.2rem;font-size:0.85rem;">📁 Upload .txt</button>
+      </div>
+      <div id="phoneList" style="display:flex;flex-wrap:wrap;gap:0.5rem;margin-top:0.75rem;max-height:200px;overflow-y:auto;"></div>
+      <input type="file" id="fileInput" accept=".txt,.xlsx,.xls" style="display:none;">
     </div>
 
     <div class="card">
       <div class="input-group">
-        <input type="email" id="emailInput" placeholder="Enter email e.g. example@gmail.com" autofocus>
+        <input type="email" id="emailInput" placeholder="Enter email e.g. example@gmail.com">
         <div class="count-label">
           <span>Count:</span>
           <input type="number" class="count-input" id="countInput" value="50" min="1" max="500">
@@ -413,18 +494,30 @@
           <span id="copiedCount"><span class="num">0</span> copied</span>
         </div>
       </div>
-
       <div class="main-email-box" id="mainEmailBox" style="display:none;">
         <span class="label">✦ Original Email</span>
         <span id="mainEmailText"></span>
       </div>
-
       <div class="email-list" id="emailList"></div>
     </div>
 
     <div class="toast" id="toast"></div>
+    <div id="otpPopup" style="display:none;position:fixed;top:1rem;right:1rem;background:#1a2a1a;border:1px solid #2a6a3a;border-radius:16px;padding:1rem 1.5rem;z-index:200;max-width:350px;box-shadow:0 8px 32px rgba(0,0,0,0.5);animation:slideIn 0.3s;">
+      <div style="font-size:0.7rem;color:#888;margin-bottom:0.3rem;">🔔 New OTP Received</div>
+      <div id="popupCodes" style="font-size:1.5rem;font-weight:700;color:#6f6;font-family:monospace;display:flex;gap:0.5rem;flex-wrap:wrap;margin-top:0.3rem;"></div>
+      <div id="popupFrom" style="font-size:0.75rem;color:#aaa;margin-top:0.3rem;"></div>
+      <button onclick="document.getElementById('otpPopup').style.display='none'" style="position:absolute;top:0.5rem;right:0.75rem;background:none;border:none;color:#666;cursor:pointer;font-size:1.2rem;">✕</button>
+    </div>
+    <style>
+      @keyframes slideIn { from { transform:translateX(100px);opacity:0; } to { transform:translateX(0);opacity:1; } }
+      @keyframes popIn { 0%{transform:scale(0.8);opacity:0;} 50%{transform:scale(1.1);} 100%{transform:scale(1);opacity:1;} }
+      @keyframes copiedFlash { 0%{box-shadow:0 0 0 0 rgba(100,255,100,0.6);} 100%{box-shadow:0 0 20px 10px rgba(100,255,100,0);} }
+      .otp-chip { animation:popIn 0.3s ease; }
+      .otp-chip.copied { animation:copiedFlash 0.5s ease; background:#1a4a2a !important; }
+    </style>
   </div>
 
+  <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
   <script>
     (function() {
       const STORAGE_KEY = 'dotmail_data';
@@ -704,6 +797,129 @@
         }
       }
 
+      let pollTimer = null;
+      let lastOtpIds = new Set();
+      let savedOtpEmail = '';
+      let savedOtpPass = '';
+
+      function escapeHtml(str) { const d = document.createElement('div'); d.textContent = str; return d.innerHTML; }
+
+      const receivedOtps = [];
+
+      function playBeep() {
+        try {
+          const ctx = new (window.AudioContext || window.webkitAudioContext)();
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.connect(gain); gain.connect(ctx.destination);
+          osc.frequency.value = 880; osc.type = 'sine';
+          gain.gain.setValueAtTime(0.3, ctx.currentTime);
+          gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.3);
+          osc.start(ctx.currentTime); osc.stop(ctx.currentTime + 0.3);
+        } catch(e) {}
+      }
+
+      function showOtpPopup(otps, from, subject) {
+        const item = { otps, from, subject, time: new Date().toLocaleTimeString() };
+        receivedOtps.push(item);
+        renderOtpList();
+        playBeep();
+        const popup = document.getElementById('otpPopup');
+        const pc = document.getElementById('popupCodes');
+        pc.innerHTML = '';
+        otps.forEach(c => {
+          const el = document.createElement('span');
+          el.textContent = c;
+          el.className = 'otp-chip';
+          el.style.cssText = 'padding:0.2rem 0.6rem;font-size:1.2rem;';
+          el.onclick = function() { navigator.clipboard.writeText(c); el.classList.add('copied'); setTimeout(function(){el.classList.remove('copied')},500); showToast('Copied: ' + c); };
+          pc.appendChild(el);
+        });
+        document.getElementById('popupFrom').textContent = from;
+        popup.style.display = 'block';
+      }
+
+      function renderOtpList() {
+        const container = document.getElementById('otpEmailList');
+        const card = document.getElementById('otpResultCard');
+        if (!container) return;
+        if (receivedOtps.length === 0) { container.innerHTML = ''; card.style.display = 'none'; return; }
+        card.style.display = 'block';
+        container.innerHTML = '';
+        const codes = [];
+        receivedOtps.forEach(item => item.otps.forEach(c => codes.push(c)));
+        codes.reverse().forEach(c => {
+          const el = document.createElement('span');
+          el.className = 'otp-chip';
+          el.textContent = c;
+          el.onclick = function() { navigator.clipboard.writeText(c); el.classList.add('copied'); setTimeout(function(){el.classList.remove('copied')},500); showToast('Copied: ' + c); };
+          container.appendChild(el);
+        });
+        const style = document.getElementById('otpChipStyle') || document.createElement('style');
+        style.id = 'otpChipStyle';
+        style.textContent = '.otp-chip{background:#0a2a1a;border:1px solid #2a6a3a;color:#6f6;padding:0.6rem 1.2rem;border-radius:10px;font-family:monospace;font-weight:700;font-size:1.3rem;cursor:pointer;transition:all 0.2s;}.otp-chip:hover{background:#1a4a2a;border-color:#4a9a5a;}';
+        document.head.appendChild(style);
+      }
+
+      function updateOtpBadge(count) {
+        let badge = document.getElementById('otpBadge');
+        if (count > 0) {
+          if (!badge) {
+            badge = document.createElement('span');
+            badge.id = 'otpBadge';
+            badge.style.cssText = 'position:fixed;top:1rem;left:1rem;background:#f04040;color:#fff;border-radius:50%;width:2rem;height:2rem;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:0.8rem;z-index:200;cursor:pointer;box-shadow:0 2px 12px rgba(240,64,64,0.5);';
+            badge.onclick = () => { document.getElementById('otpPopup').style.display = 'block'; document.getElementById('otpPopup').style.display = 'block'; };
+            document.body.appendChild(badge);
+          }
+          badge.textContent = count;
+        } else if (badge) { badge.remove(); }
+      }
+
+      async function pollOtp() {
+        if (!savedOtpEmail || !savedOtpPass) return;
+        try {
+          const res = await fetch('/api/fetch', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email: savedOtpEmail, password: savedOtpPass }),
+          });
+          const data = await res.json();
+          if (data.error) { return; }
+          if (data.otps) {
+            const newOtps = data.otps.filter(o => !lastOtpIds.has(o.id));
+            if (newOtps.length > 0) {
+              newOtps.forEach(o => lastOtpIds.add(o.id));
+              newOtps.slice(0, 3).forEach(o => {
+                if (o.otps && o.otps.length > 0) showOtpPopup(o.otps, o.from);
+              });
+              updateOtpBadge(document.querySelectorAll('#otpBadge').length > 0 ? parseInt(document.getElementById('otpBadge').textContent) + newOtps.length : newOtps.length);
+              document.getElementById('otpPollStatus').innerHTML = '<span style="color:#6f6;">✓ ' + new Date().toLocaleTimeString() + ' — ' + newOtps.length + ' new</span>';
+            }
+            if (!document.getElementById('otpPollStatus').dataset.initial) {
+              document.getElementById('otpPollStatus').dataset.initial = '1';
+              document.getElementById('otpPollStatus').innerHTML = '<span style="color:#888;">○ Waiting for new OTPs...</span>';
+            }
+          }
+        } catch (e) {}
+      }
+
+      function startPolling() {
+        if (pollTimer) clearInterval(pollTimer);
+        lastOtpIds.clear();
+        document.getElementById('otpPollStatus').dataset.initial = '';
+        updateOtpBadge(0);
+        pollOtp();
+        pollTimer = setInterval(pollOtp, 12000);
+      }
+
+      function stopPolling() {
+        if (pollTimer) { clearInterval(pollTimer); pollTimer = null; }
+        document.getElementById('otpPollStatus').innerHTML = '';
+        document.getElementById('otpPollStatus').dataset.initial = '';
+        document.getElementById('otpConnectBtn').style.display = '';
+        document.getElementById('otpDisconnectBtn').style.display = 'none';
+      }
+
       function init() {
         emailInput.addEventListener('keydown', handleKeydown);
         generateBtn.addEventListener('click', handleGenerate);
@@ -733,6 +949,123 @@
         if (v.length > 0) {
           currentVariations = v;
           render(v, c);
+        }
+
+        document.getElementById('otpConnectBtn').addEventListener('click', function() {
+          const email = document.getElementById('otpEmailInput').value.trim();
+          const pass = document.getElementById('otpPassInput').value.trim();
+          if (!email || !pass) { showToast('Enter email and app password'); return; }
+          savedOtpEmail = email;
+          savedOtpPass = pass;
+          localStorage.setItem('otp_creds', JSON.stringify({ email, pass }));
+          document.getElementById('otpConnectBtn').style.display = 'none';
+          document.getElementById('otpDisconnectBtn').style.display = '';
+          document.getElementById('otpPollStatus').innerHTML = '<span style="color:#f0c040;">⟳ Connecting...</span>';
+          startPolling();
+        });
+
+        document.getElementById('clearOtpListBtn').addEventListener('click', function() {
+          receivedOtps.length = 0;
+          renderOtpList();
+          updateOtpBadge(0);
+          showToast('Cleared');
+        });
+
+        document.getElementById('otpDisconnectBtn').addEventListener('click', function() {
+          savedOtpEmail = ''; savedOtpPass = '';
+          localStorage.removeItem('otp_creds');
+          stopPolling();
+          updateOtpBadge(0);
+          lastOtpIds.clear();
+          showToast('Disconnected');
+        });
+
+        const phoneNumbers = [];
+        const phoneCopied = new Set();
+        function renderPhones() {
+          const el = document.getElementById('phoneList');
+          if (!el) return;
+          if (phoneNumbers.length === 0) { el.innerHTML = '<span style="color:#555;font-size:0.85rem;">No numbers</span>'; return; }
+          el.innerHTML = '';
+          phoneNumbers.forEach((p, i) => {
+            const chip = document.createElement('span');
+            chip.textContent = p;
+            chip.style.cssText = 'background:' + (phoneCopied.has(i)?'#1a4a2a':'#14141e') + ';border:1px solid ' + (phoneCopied.has(i)?'#2a6a3a':'#333') + ';color:' + (phoneCopied.has(i)?'#6f6':'#e0e0e0') + ';padding:0.5rem 1rem;border-radius:8px;font-family:monospace;font-size:0.95rem;cursor:pointer;transition:all 0.2s;animation:popIn 0.3s ease;';
+            chip.dataset.idx = i;
+            chip.onclick = function() {
+              const idx = parseInt(this.dataset.idx);
+              navigator.clipboard.writeText(phoneNumbers[idx]);
+              phoneCopied.add(idx);
+              renderPhones();
+              showToast('Copied: ' + phoneNumbers[idx]);
+            };
+            el.appendChild(chip);
+          });
+        }
+        document.getElementById('phoneGenBtn').addEventListener('click', function() {
+          const code = document.getElementById('countryCodeSelect').value;
+          const count = parseInt(document.getElementById('phoneCountInput').value) || 20;
+          phoneNumbers.length = 0; phoneCopied.clear();
+          for (let i = 0; i < count; i++) {
+            let digits = '';
+            for (let j = 0; j < 10; j++) digits += Math.floor(Math.random() * 10);
+            phoneNumbers.push(code + digits);
+          }
+          renderPhones();
+          showToast('Generated ' + count + ' numbers');
+        });
+        document.getElementById('uploadBtn').addEventListener('click', function() {
+          document.getElementById('fileInput').click();
+        });
+        document.getElementById('fileInput').addEventListener('change', function(e) {
+          const file = e.target.files[0];
+          if (!file) return;
+          const ext = file.name.split('.').pop().toLowerCase();
+          phoneNumbers.length = 0; phoneCopied.clear();
+          if (ext === 'txt') {
+            const reader = new FileReader();
+            reader.onload = function(ev) {
+              ev.target.result.split('\n').forEach(l => {
+                const num = l.trim().replace(/[\s\-\(\)]/g, '');
+                if (num) phoneNumbers.push(num);
+              });
+              renderPhones(); showToast('Loaded ' + phoneNumbers.length + ' numbers');
+            };
+            reader.readAsText(file);
+          } else if (ext === 'xlsx' || ext === 'xls') {
+            const reader = new FileReader();
+            reader.onload = function(ev) {
+              try {
+                const wb = XLSX.read(ev.target.result, {type:'array'});
+                const ws = wb.Sheets[wb.SheetNames[0]];
+                const data = XLSX.utils.sheet_to_json(ws, {header:1});
+                data.forEach(row => {
+                  if (row && row.length) {
+                    const cell = String(row[0]).trim().replace(/[\s\-\(\)]/g, '');
+                    if (cell) phoneNumbers.push(cell);
+                  }
+                });
+                renderPhones(); showToast('Loaded ' + phoneNumbers.length + ' numbers');
+              } catch(err) { showToast('Error reading file'); }
+            };
+            reader.readAsArrayBuffer(file);
+          }
+        });
+
+        const saved = localStorage.getItem('otp_creds');
+          try {
+            const c = JSON.parse(saved);
+            if (c.email && c.pass) {
+              document.getElementById('otpEmailInput').value = c.email;
+              document.getElementById('otpPassInput').value = c.pass;
+              savedOtpEmail = c.email;
+              savedOtpPass = c.pass;
+              document.getElementById('otpConnectBtn').style.display = 'none';
+              document.getElementById('otpDisconnectBtn').style.display = '';
+              document.getElementById('otpPollStatus').innerHTML = '<span style="color:#f0c040;">⟳ Reconnecting...</span>';
+              startPolling();
+            }
+          } catch(e) {}
         }
       }
 
