@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gmail OTP Fetcher</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #0f0f13;
+      color: #e0e0e0;
+      min-height: 100vh;
+      padding: 2rem 1rem;
+    }
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+    }
+    .header {
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+    .header h1 {
+      font-size: 2rem;
+      background: linear-gradient(135deg, #6366f1, #a78bfa);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .header p { color: #888; margin-top: 0.4rem; }
+    .card {
+      background: #1a1a23;
+      border-radius: 16px;
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
+      border: 1px solid #2a2a35;
+    }
+    .btn {
+      padding: 0.75rem 1.5rem;
+      border: none;
+      border-radius: 10px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .btn-primary {
+      background: #6366f1;
+      color: #fff;
+    }
+    .btn-primary:hover { background: #5558e6; }
+    .btn-secondary {
+      background: #2a2a35;
+      color: #ccc;
+    }
+    .btn-secondary:hover { background: #333340; }
+    .status-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1rem;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+    .status { color: #888; font-size: 0.9rem; }
+    .status.connected { color: #6f6; }
+    .otp-item {
+      padding: 1rem;
+      border-radius: 10px;
+      background: #14141e;
+      border: 1px solid #222;
+      margin-bottom: 0.5rem;
+    }
+    .otp-item .from { font-size: 0.8rem; color: #888; }
+    .otp-item .codes {
+      margin-top: 0.5rem;
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+    }
+    .otp-code {
+      background: #0a2a1a;
+      border: 1px solid #2a6a3a;
+      color: #6f6;
+      padding: 0.4rem 1rem;
+      border-radius: 8px;
+      font-family: monospace;
+      font-size: 1.2rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .otp-code:hover { background: #1a4a2a; }
+    .otp-code.copied { background: #2a6a3a; }
+    .empty {
+      text-align: center;
+      padding: 3rem;
+      color: #555;
+    }
+    .empty .big { font-size: 3rem; display: block; margin-bottom: 1rem; }
+    .hidden { display: none; }
+    .toast {
+      position: fixed;
+      bottom: 2rem;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #2a6a3a;
+      color: #fff;
+      padding: 0.75rem 1.5rem;
+      border-radius: 12px;
+      opacity: 0;
+      transition: opacity 0.3s;
+      pointer-events: none;
+    }
+    .toast.show { opacity: 1; }
+    .snippet { font-size: 0.85rem; color: #666; margin-top: 0.3rem; }
+    .setup-guide {
+      background: #1a1a23;
+      border: 1px solid #333;
+      border-radius: 12px;
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
+      line-height: 1.8;
+    }
+    .setup-guide h3 { margin-bottom: 1rem; color: #a78bfa; }
+    .setup-guide code {
+      background: #111;
+      color: #6f6;
+      padding: 0.2rem 0.5rem;
+      border-radius: 4px;
+      font-size: 0.85rem;
+    }
+    .setup-guide ol { padding-left: 1.5rem; }
+    .setup-guide li { margin-bottom: 0.5rem; }
+    .setup-guide a { color: #a78bfa; }
+    @media (max-width: 500px) {
+      .header h1 { font-size: 1.5rem; }
+      .card { padding: 1rem; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>✉ Gmail OTP Fetcher</h1>
+      <p>Fetch OTP codes from your Gmail inbox</p>
+    </div>
+
+    <div class="card">
+      <div class="status-bar">
+        <span class="status" id="statusText">○ Not connected</span>
+        <button class="btn btn-primary hidden" id="authBtn">🔑 Sign in with Google</button>
+        <button class="btn btn-secondary" id="fetchBtn">⟳ Fetch OTPs</button>
+      </div>
+    </div>
+
+    <div class="setup-guide" id="setupGuide">
+      <h3>🔧 Setup Instructions</h3>
+      <ol>
+        <li>Go to <a href="https://console.cloud.google.com/" target="_blank">Google Cloud Console</a></li>
+        <li>Create a project, enable <strong>Gmail API</strong></li>
+        <li>Go to <strong>Credentials</strong> → Create OAuth 2.0 Client ID → <strong>Desktop app</strong></li>
+        <li>Add redirect URI: <code>http://localhost:3000/api/auth-callback</code></li>
+        <li>Download <code>credentials.json</code> and put it in <strong>server/</strong> folder</li>
+        <li>Run <code>npm start</code> inside server/ folder</li>
+      </ol>
+    </div>
+
+    <div class="card" id="otpCard">
+      <div id="otpList"><div class="empty"><span class="big">📭</span>No OTPs found. Click "Fetch OTPs"</div></div>
+    </div>
+
+    <div class="toast" id="toast"></div>
+  </div>
+
+  <script>
+    (function() {
+      const authBtn = document.getElementById('authBtn');
+      const fetchBtn = document.getElementById('fetchBtn');
+      const statusText = document.getElementById('statusText');
+      const otpList = document.getElementById('otpList');
+      const toast = document.getElementById('toast');
+      const setupGuide = document.getElementById('setupGuide');
+
+      function showToast(msg) {
+        toast.textContent = msg;
+        toast.classList.add('show');
+        clearTimeout(toast._t);
+        toast._t = setTimeout(() => toast.classList.remove('show'), 2000);
+      }
+
+      function copyText(text) {
+        navigator.clipboard.writeText(text).then(() => showToast('Copied: ' + text));
+      }
+
+      function updateStatus(text, connected) {
+        statusText.textContent = text;
+        statusText.className = 'status' + (connected ? ' connected' : '');
+      }
+
+      function renderOTPs(data) {
+        if (!data || data.length === 0) {
+          otpList.innerHTML = '<div class="empty"><span class="big">📭</span>No OTPs found</div>';
+          return;
+        }
+        let html = '';
+        data.forEach(item => {
+          const from = item.from || 'Unknown';
+          const date = item.date || '';
+          const snippet = item.snippet || '';
+          const codes = item.otps || [];
+          const body = item.body || '';
+          html += '<div class="otp-item">';
+          html += '<div class="from">' + escapeHtml(from) + ' &middot; ' + escapeHtml(date) + '</div>';
+          if (codes.length > 0) {
+            html += '<div class="codes">';
+            codes.forEach(c => {
+              html += '<span class="otp-code" onclick="copyText(\'' + c + '\')">' + c + '</span>';
+            });
+            html += '</div>';
+          }
+          if (snippet) html += '<div class="snippet">' + escapeHtml(snippet) + '</div>';
+          if (!codes.length && body) html += '<div class="snippet">' + escapeHtml(body.slice(0, 150)) + '</div>';
+          html += '</div>';
+        });
+        otpList.innerHTML = html;
+      }
+
+      function escapeHtml(str) {
+        const d = document.createElement('div');
+        d.textContent = str;
+        return d.innerHTML;
+      }
+
+      async function checkAuth() {
+        const res = await fetch('/api/otps');
+        const data = await res.json();
+        if (data.error === 'no_credentials') {
+          updateStatus('✕ Setup needed - add credentials.json', false);
+          authBtn.classList.add('hidden');
+          setupGuide.style.display = 'block';
+        } else if (data.error === 'not_authenticated') {
+          updateStatus('○ Not authenticated', false);
+          authBtn.classList.remove('hidden');
+          setupGuide.style.display = 'block';
+          const urlRes = await fetch('/api/auth-url');
+          const urlData = await urlRes.json();
+          if (urlData.url) authBtn.onclick = () => window.open(urlData.url, '_blank');
+        } else if (data.error === 'token_expired') {
+          updateStatus('○ Token expired, re-auth needed', false);
+          authBtn.classList.remove('hidden');
+          const urlRes = await fetch('/api/auth-url');
+          const urlData = await urlRes.json();
+          if (urlData.url) authBtn.onclick = () => window.open(urlData.url, '_blank');
+        } else if (data.otps) {
+          updateStatus('● Connected & authenticated', true);
+          authBtn.classList.add('hidden');
+          setupGuide.style.display = 'none';
+          renderOTPs(data.otps);
+        }
+      }
+
+      async function fetchOTPs() {
+        updateStatus('⟳ Fetching...', false);
+        const res = await fetch('/api/otps');
+        const data = await res.json();
+        if (data.error === 'not_authenticated' || data.error === 'token_expired') {
+          checkAuth();
+          return;
+        }
+        if (data.error === 'no_credentials') {
+          checkAuth();
+          return;
+        }
+        if (data.otps) {
+          updateStatus('● Connected & authenticated', true);
+          authBtn.classList.add('hidden');
+          setupGuide.style.display = 'none';
+          renderOTPs(data.otps);
+          showToast('Fetched ' + data.otps.length + ' emails');
+        }
+      }
+
+      window.copyText = copyText;
+
+      authBtn.classList.add('hidden');
+      fetchBtn.addEventListener('click', fetchOTPs);
+
+      checkAuth();
+    })();
+  </script>
+</body>
+</html>
