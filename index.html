@@ -592,7 +592,7 @@
         return Math.min(val, 500);
       }
 
-      function generateAndRender(email) {
+      function generateAndRender(email, keepOld) {
         const trimmed = email.trim();
         if (!isValidEmail(trimmed)) {
           showToast('Please enter a valid email');
@@ -602,26 +602,35 @@
         const desiredCount = getDesiredCount();
         const { username, domain } = getUsernameAndDomain(trimmed);
         const dots = generateDotVariations(username, desiredCount);
-        const variations = dots.map(d => d + '@' + domain);
+        const newVariations = dots.map(d => d + '@' + domain);
 
         const state = loadState();
-
-        const existingVariations = state.variations || [];
         const existingCopied = state.copied || {};
 
-        const mergedMap = new Map();
-        existingVariations.forEach(v => mergedMap.set(v, true));
-        variations.forEach(v => mergedMap.set(v, true));
-        const merged = Array.from(mergedMap.keys());
+        let finalVariations;
+        let copied;
 
-        const copied = { ...existingCopied };
+        if (keepOld) {
+          const existingVariations = state.variations || [];
+          const mergedMap = new Map();
+          existingVariations.forEach(v => mergedMap.set(v, true));
+          newVariations.forEach(v => mergedMap.set(v, true));
+          finalVariations = Array.from(mergedMap.keys());
+          copied = { ...existingCopied };
+        } else {
+          finalVariations = newVariations;
+          copied = {};
+          newVariations.forEach(v => {
+            if (existingCopied[v]) copied[v] = true;
+          });
+        }
 
-        currentVariations = merged;
+        currentVariations = finalVariations;
         currentEmail = trimmed;
 
-        saveState(merged, copied, currentEmail);
-        render(merged, copied);
-        showToast('Generated ' + variations.length + ' dot variations');
+        saveState(finalVariations, copied, currentEmail);
+        render(finalVariations, copied);
+        showToast('Generated ' + newVariations.length + ' dot variations');
       }
 
       function refresh() {
@@ -629,7 +638,7 @@
           showToast('No email to regenerate');
           return;
         }
-        generateAndRender(currentEmail);
+        generateAndRender(currentEmail, true);
       }
 
       function handleGenerate() {
@@ -639,7 +648,7 @@
           return;
         }
         currentEmail = email;
-        generateAndRender(email);
+        generateAndRender(email, false);
       }
 
       function handleKeydown(e) {
