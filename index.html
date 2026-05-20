@@ -180,22 +180,35 @@
       margin-bottom: 1rem;
     }
 
+    .sticky-header {
+      position: sticky;
+      top: 0;
+      background: #1a1a23;
+      z-index: 10;
+      padding-bottom: 0.75rem;
+      border-bottom: 1px solid #222;
+      margin-bottom: 0.75rem;
+    }
+
     .stats {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 0.5rem 0;
+      padding: 0.5rem 0 0 0;
       font-size: 0.85rem;
-      color: #777;
-      border-top: 1px solid #222;
-      margin-top: 1rem;
+      color: #888;
+    }
+
+    .stats .num {
+      color: #a78bfa;
+      font-weight: 700;
     }
 
     .email-list {
       display: flex;
       flex-direction: column;
       gap: 0.35rem;
-      max-height: 60vh;
+      max-height: 55vh;
       overflow-y: auto;
     }
 
@@ -370,11 +383,17 @@
     </div>
 
     <div class="card" id="resultCard" style="display:none;">
-      <div class="toolbar">
-        <button class="btn btn-refresh" id="refreshBtn">⟳ Refresh</button>
-        <button class="btn btn-copy-all" id="copyAllBtn">📋 Copy All</button>
-        <button class="btn btn-export" id="exportBtn">📥 Export .txt</button>
-        <button class="btn btn-clear" id="clearBtn">🗑 Clear</button>
+      <div class="sticky-header">
+        <div class="toolbar">
+          <button class="btn btn-refresh" id="refreshBtn">⟳ Refresh</button>
+          <button class="btn btn-copy-all" id="copyAllBtn">📋 Copy All</button>
+          <button class="btn btn-export" id="exportBtn">📥 Export .txt</button>
+          <button class="btn btn-clear" id="clearBtn">🗑 Clear</button>
+        </div>
+        <div class="stats">
+          <span id="totalCount"><span class="num">0</span> emails</span>
+          <span id="copiedCount"><span class="num">0</span> copied</span>
+        </div>
       </div>
 
       <div class="main-email-box" id="mainEmailBox" style="display:none;">
@@ -383,11 +402,6 @@
       </div>
 
       <div class="email-list" id="emailList"></div>
-
-      <div class="stats">
-        <span id="totalCount">0 emails</span>
-        <span id="copiedCount">0 copied</span>
-      </div>
     </div>
 
     <div class="toast" id="toast"></div>
@@ -529,8 +543,8 @@
 
       function updateStats(variations, copied) {
         const copiedKeys = Object.keys(copied).filter(k => copied[k]);
-        totalCount.textContent = variations.length + ' emails';
-        copiedCount.textContent = copiedKeys.length + ' copied';
+        totalCount.innerHTML = '<span class="num">' + variations.length + '</span> emails';
+        copiedCount.innerHTML = '<span class="num">' + copiedKeys.length + '</span> copied';
       }
 
       function copySingle(email, variations, copied) {
