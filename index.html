@@ -59,7 +59,13 @@
       flex-wrap: wrap;
     }
 
-    .input-group input {
+    .input-group {
+      display: flex;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+    }
+
+    .input-group input[type="email"] {
       flex: 1;
       min-width: 200px;
       padding: 0.75rem 1rem;
@@ -72,12 +78,41 @@
       transition: border 0.2s;
     }
 
-    .input-group input:focus {
+    .input-group input[type="email"]:focus {
       border-color: #6366f1;
     }
 
-    .input-group input::placeholder {
+    .input-group input[type="email"]::placeholder {
       color: #555;
+    }
+
+    .count-input {
+      width: 80px;
+      padding: 0.75rem 0.5rem;
+      border-radius: 10px;
+      border: 1px solid #333;
+      background: #12121a;
+      color: #e0e0e0;
+      font-size: 1rem;
+      outline: none;
+      text-align: center;
+      transition: border 0.2s;
+    }
+
+    .count-input:focus {
+      border-color: #6366f1;
+    }
+
+    .count-input::-webkit-inner-spin-button {
+      opacity: 1;
+    }
+
+    .input-group .count-label {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      color: #888;
+      font-size: 0.85rem;
     }
 
     .btn {
@@ -319,6 +354,10 @@
     <div class="card">
       <div class="input-group">
         <input type="email" id="emailInput" placeholder="Enter email e.g. example@gmail.com" autofocus>
+        <div class="count-label">
+          <span>Count:</span>
+          <input type="number" class="count-input" id="countInput" value="50" min="1" max="500">
+        </div>
         <button class="btn btn-generate" id="generateBtn">Generate</button>
       </div>
     </div>
@@ -352,6 +391,7 @@
       const STORAGE_KEY = 'dotmail_data';
 
       const emailInput = document.getElementById('emailInput');
+      const countInput = document.getElementById('countInput');
       const generateBtn = document.getElementById('generateBtn');
       const refreshBtn = document.getElementById('refreshBtn');
       const copyAllBtn = document.getElementById('copyAllBtn');
@@ -396,14 +436,15 @@
         return { username: parts[0], domain: parts[1] };
       }
 
-      function generateDotVariations(username) {
+      function generateDotVariations(username, maxCount) {
         const n = username.length;
         if (n < 2) return [username];
 
-        const limit = Math.min(100, Math.pow(2, n - 1));
+        const totalPossible = Math.pow(2, n - 1) - 1;
+        const limit = Math.min(maxCount, totalPossible);
         const result = [];
 
-        for (let mask = 1; mask < limit; mask++) {
+        for (let mask = 1; mask <= totalPossible && result.length < limit; mask++) {
           let variant = '';
           for (let i = 0; i < n; i++) {
             variant += username[i];
@@ -545,6 +586,12 @@
         showToast('Cleared all data');
       }
 
+      function getDesiredCount() {
+        const val = parseInt(countInput.value, 10);
+        if (isNaN(val) || val < 1) return 50;
+        return Math.min(val, 500);
+      }
+
       function generateAndRender(email) {
         const trimmed = email.trim();
         if (!isValidEmail(trimmed)) {
@@ -552,8 +599,9 @@
           return;
         }
 
+        const desiredCount = getDesiredCount();
         const { username, domain } = getUsernameAndDomain(trimmed);
-        const dots = generateDotVariations(username);
+        const dots = generateDotVariations(username, desiredCount);
         const variations = dots.map(d => d + '@' + domain);
 
         const state = loadState();
