@@ -173,6 +173,26 @@
       border-radius: 8px;
     }
 
+    .main-email-box {
+      background: #12121a;
+      border: 1px solid #333;
+      border-radius: 10px;
+      padding: 0.75rem 1rem;
+      margin-bottom: 1rem;
+      font-family: 'Cascadia Code', 'Fira Code', monospace;
+      font-size: 1rem;
+      color: #a78bfa;
+      word-break: break-all;
+    }
+
+    .main-email-box .label {
+      font-size: 0.75rem;
+      color: #666;
+      font-family: 'Segoe UI', sans-serif;
+      display: block;
+      margin-bottom: 0.25rem;
+    }
+
     .email-item {
       display: flex;
       align-items: center;
@@ -198,11 +218,20 @@
       color: #6f6;
     }
 
+    .serial {
+      font-size: 0.8rem;
+      color: #555;
+      min-width: 2.5rem;
+      text-align: right;
+      font-family: 'Segoe UI', sans-serif;
+    }
+
     .email-text {
       font-family: 'Cascadia Code', 'Fira Code', monospace;
       font-size: 0.9rem;
       word-break: break-all;
       flex: 1;
+      margin-left: 0.5rem;
     }
 
     .badge {
@@ -302,6 +331,11 @@
         <button class="btn btn-clear" id="clearBtn">🗑 Clear</button>
       </div>
 
+      <div class="main-email-box" id="mainEmailBox" style="display:none;">
+        <span class="label">✦ Original Email</span>
+        <span id="mainEmailText"></span>
+      </div>
+
       <div class="email-list" id="emailList"></div>
 
       <div class="stats">
@@ -324,6 +358,8 @@
       const exportBtn = document.getElementById('exportBtn');
       const clearBtn = document.getElementById('clearBtn');
       const emailList = document.getElementById('emailList');
+      const mainEmailBox = document.getElementById('mainEmailBox');
+      const mainEmailText = document.getElementById('mainEmailText');
       const resultCard = document.getElementById('resultCard');
       const totalCount = document.getElementById('totalCount');
       const copiedCount = document.getElementById('copiedCount');
@@ -386,17 +422,27 @@
 
         if (!variations || variations.length === 0) {
           emailList.innerHTML = '<div class="empty-state"><span>📭</span>No emails generated yet</div>';
+          mainEmailBox.style.display = 'none';
           resultCard.style.display = 'none';
           return;
         }
 
         resultCard.style.display = 'block';
 
-        variations.forEach(email => {
+        if (currentEmail) {
+          mainEmailText.textContent = currentEmail;
+          mainEmailBox.style.display = 'block';
+        }
+
+        variations.forEach((email, idx) => {
           const isCopied = copied[email] === true;
 
           const item = document.createElement('div');
           item.className = 'email-item' + (isCopied ? ' copied' : '');
+
+          const serialSpan = document.createElement('span');
+          serialSpan.className = 'serial';
+          serialSpan.textContent = '#' + (idx + 1);
 
           const textSpan = document.createElement('span');
           textSpan.className = 'email-text';
@@ -416,6 +462,7 @@
             copySingle(email, variations, copied);
           });
 
+          item.appendChild(serialSpan);
           item.appendChild(textSpan);
           item.appendChild(badge);
           item.appendChild(btn);
@@ -491,6 +538,7 @@
         localStorage.removeItem(STORAGE_KEY);
         currentVariations = [];
         currentEmail = '';
+        mainEmailBox.style.display = 'none';
         render([], {});
         emailInput.value = '';
         emailInput.focus();
